@@ -14,6 +14,8 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(cors())
 
+
+// console.log("ASaskjfnj")
 app.use('/api/v1/users',require('./routes/userRoute'));
 app.use('/api/v1/transaction',require('./routes/transactionRoute'));
 

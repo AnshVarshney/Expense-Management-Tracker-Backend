@@ -2,10 +2,11 @@ const transactionModel = require('../models/transactionModel')
 const moment = require('moment')
 
 const getTransaction = async(req,res)=>{
-    const id=req.body.userid;
+    const id=req.userData.userId;
     // console.log(id)
     try{
         const {frequency,selectedDate,type} = req.body
+        // console.log("request body",req.body)
         const transaction =  await transactionModel.find({
             ...(frequency!=='custom'?
             {
@@ -20,12 +21,13 @@ const getTransaction = async(req,res)=>{
             ...(type!=='all' && {type}) ,
             userid: id
         });
+
+        // console.log(transaction)
         res.status(200).json(
             {
                 success:true,
                 transaction
             })
-        // res.status(200).send("everthing ok")
     }catch(error){
         console.log(error)
         res.status(400).json(error)
@@ -33,8 +35,10 @@ const getTransaction = async(req,res)=>{
 }
 
 const editTransaction = async(req,res)=>{
+    const id = req.userData.userId
+    const data = {userid: id,...req.body.payload}
     try{
-        await transactionModel.findOneAndUpdate({_id:req.body.transactionId},req.body.payload)
+        await transactionModel.findOneAndUpdate({_id:req.body.transactionId},data)
         res.status(200).send('Transaction Edited Successfully')
     }catch(error){
         console.log(error);
@@ -46,6 +50,7 @@ const editTransaction = async(req,res)=>{
 }
 
 const deleteTransaction = async(req,res)=>{
+    // console.log("sad",req.body)
     try{
         await transactionModel.findOneAndDelete({_id:req.body.transactionId})
         res.status(200).send('Transaction Deleted Successfully')
@@ -60,9 +65,11 @@ const deleteTransaction = async(req,res)=>{
 
 
 const addTransaction = async (req,res)=>{
+    const userid = req.userData.userId; 
     const transData = req.body
     try{
-        const newTransaction = await transactionModel.create(transData)
+        const newTransaction = await transactionModel.create({...transData,userid:userid});
+        // console.log("newTransaction",newTransaction)
         res.status(201).json(
             {
                 success:true,
